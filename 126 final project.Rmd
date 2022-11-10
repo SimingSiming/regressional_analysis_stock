@@ -1,0 +1,273 @@
+---
+title: "PSTAT 126 Final Project"
+subtitle: "Stock Portfolio Performance"
+author: "Jaya Ren; Siming Su; Chloe Wang"
+date: "6/12/2020"
+output:
+  pdf_document:
+    citation_package: null
+    fig_caption: yes
+    highlight: default
+    keep_tex: no
+    latex_engine: xelatex
+  html_document: default
+  word_document: default
+fontsize: 11pt
+geometry: margin=1in
+header-includes:
+- \usepackage{amsmath}
+---
+
+\vspace{0.25in}
+\centering
+\raggedright
+\newpage
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Abstract
+The purpose of this project is to find out the predictors that affect most on a stock portfolio performance, based on 6 criteria that investors could be concerned about, including: annual return, excess return, systematic risk, total risk, absolute win rate, and relative win rate. By building a multiple linear regression model on the 6 criteria and 6 predictors (large B/P, large ROE, large S/P, large return rate, large market value, and small systematic risk, which will be explained in the "Data" section), we noticed there is a significant positive linear relationship between the stock relative win rate and the ROE; as well as a negative linear relationship between the win rate and large return rate, and small systematic risk with all other predictors being controlled, respectively.
+
+# Problem and Motivation 
+There are numerous stock choices out there in the market. How to make the best stock selection when having different preferences and criteria became a big problem for many investors. A portfolio is a grouping of financial assets such as stocks, bonds, commodities, currencies and cash equivalents, as well as their fund counterparts, including mutual, exchange-traded and closed funds. The data set we are investigating shows the performance of a stock portfolio based on different predictors from a weighted scoring stock selection model. 
+
+A weighted scoring stock selection model is one solution to the question of how to make the best stock selection. In the model, each essential criterion is given specific weights, and each stock is being scored under this system. It is a really useful tool to help determine the value of stocks in portfolios. In this project, we want to investigate which parameters are crucial to select out the best performed stocks in a given portfolio from the weighted scoring stock selection model. In that way, we are able to see a pattern for "good" stocks, and able to select them to make good profit in the investments. The definition of "good" here can vary from different criteria, which is presented as 6 different response variables(indicators) in our data set. 
+
+
+# Data
+Source: This data set is from UCI Machine Learning Repository
+
+Our set of data has 315 instances with 12 attributes. 
+There are 6 predictor variables to define the weights of the stock-picking concepts:
+
+X1 - the weight of the Large Book-to-market ratio (B/P) concept
+Book-to-market ratio is a ratio used to find the value of a company by comparing the book value of a firm to its market value. Higher the B/P ratio, Higher is the possibility that the stock is undervalued.
+
+X2 - the weight of the Large Return on Equity (ROE) concept
+Return on equity is a measure of financial performance calculated by dividing net income by shareholders' equity. It is considered a measure of how effectively management is using a company’s assets to create profits.
+
+X3 - the weight of the Large price-to-sales ratio (S/P) concept 
+Price-to-sales ratio is calculated by taking a company's market capitalization and dividing it by the company's total sales or revenue over the past 12 months. The lower the P/S ratio, the more attractive the investment. 
+
+X4 - the weight of the Large Return Rate in the last quarter concept 
+Rate of return is the net gain or loss of an investment over a specified time period, expressed as a percentage of the investment’s initial cost. It is used to measure the profit or loss of an investment over time.
+
+X5 - the weight of the Large Market Value concept 
+Market value is the price an asset would fetch in the marketplace, or the value that the investment community gives to a particular equity or business. 
+
+X6 - the weight of the Small systematic Risk concept 
+Systematic Risk is the risk inherent to the entire market. It is largely unpredictable and generally viewed as being difficult to avoid.
+
+We also have 6 response variables to used as the indicators for the stock portfolio performance as follow:
+Y1 - Annual Return 
+Y2 - Excess Return 
+Y3 - Systematic Risk 
+Y4 - Total Risk 
+Y5 - Absolute Win Rate 
+Y6 - Relative Win Rate
+
+
+# Questions of interest
+
+Our goal is to be able to find the predictors that affect most on our stock portfolio performance, and their relationship to each other. In that way, we are looking forward to finding some features of well-performed stocks to improve our investment portfolio performance. So we are trying to answer the following questions by analyzing our data set:
+-	Which predictors are crucial to predict the performance of a stock portfolio?
+-	Is there any linear relationship between the predictors and any of the responses? 
+-	Which predictors have the most impact on stock portfolio annual return or win rates?
+
+
+# Regression methods
+
+As we have more than one response variables in this data set, we want to first identify a response variable with the best possible linear regression model for this data set. Therefore, the first step would be comparing summary tables of all six response variables. After we decided which one will be the response variable we investigate in this model, we can conduct further tests, including non-constant variance test and sharpiro test to decide whether we need to transform our predictors or the response variable. Then we use the step function to determine if there is a reduced model with smaller AIC than the full model. We also want to conduct partial F tests to see if the reduced model is better than the full model. We also want to consider if interactive terms are appropriate in our model. After we confirm our final model, we want to check if there are outliers, high leverage points, or influential data points so we can further improve our model. 
+
+Now that we have all the steps planned out, we can start getting familar with our data set. By comparing 6 first order linear regression models corresponding to each response varialble (Appendix 2.), model with y1, "Annual Return", and y6, "Rel. Win Rate", have the highest $adjusted-R^2$, 0.6042 and 0.5883 respectively. However, the model with y6 has much smaller p-value for each predictor, indicating stronger linear relationships. Therefore, we decide to have y6, "Rel. Win. Rate", as our final predictor, and our full model now is y6 ~ x1 + x2 + x3 + x4 + x5 + x6.
+
+After determining our predictor, we want to obtain a basic understanding of how each predictor is related to each other and our predictor y6. To achieve this, we made a few plots (Appendix 2.). From the Residuals vs Fitted plot, there seem to be a funnelling pattern and a possible outlier at data point 2, so the model might violate constant variance. From the Normal Q-Q plot, the model looks right skewed, so it might violate normality. From the scatterplot, y6 seem to have strong linear relationship with x2, x4, and x6, but we are not so sure. From AV plots, all predictors seem to be useful, so further analysis is required. 
+
+
+# Regression analysis
+
+The code of this section is located at Appendix 3. 
+
+By running non-constant variance test, since $p=0.065923 > 0.05$, we fail to reject the null hypothesis, so our model is constant variance. From Sharpiro test, since $p=0.9394 > 0.05$, we fail to reject the null hypothesis, so our model is normal. Therefore, we don't need any transformation on our predictors or the response variable. 
+
+We want to use step function to see if there's any reduced model with smaller AIC. However, based on the result of step function, the best model is still our full model. We want further investigations to decide whether there's a better reduced model, since we prefer simpler model and the scatterplot indicates there might be some predictors that are better than the rest. Since our model is relatively small, we can use regsubsets() function. If we use $R^2$, $BIC$, or Mallow's $C_p$ as our criteria, we would choose y6 ~ x2 + x4 + x6 as our new model. If we use $RSS$ or $adjusted-R^2$ as our criteria, we would choose the full model. 
+
+To decide which one is a better model, we conduct partial F-test. Since p-value = $0.2086>0.05$, we fail to reject null hypothesis, so the reduced model is better. If we look at the summary table of y6 ~ x2 + x4 + x6, the $adjusted-R^2$ actually didn;t change much, but the individual p-value for each predictor has dropped a lot, indicating now we have strong linear relationships between each predictor and the response. 
+
+What about interactive terms? Do predictors relate to each other? To find the answer, we introduce a new model with interaction terms and read its summary table. Interestingly, although $adjusted-R^2$ improved by a little bit, individual t-test for each interactive term tells us that there isn't significant linear relationship between each interactive term and our response. To be more precise, we conduct partial F test again but this time with the interactive model as our full model. Since p-value=$0.1252<0.05$, the reduced model is better, so we keep y6 ~ x2 + x4 + x6. 
+
+Finally, we want to check if there are outliers, high leverage points, or influential points in our data. To do so, we use the function influenceIndexPlot(). From the plot, we can conclude that x=2 is an influential point because its cooks' distance is close to 1. By verifying studentized residual, x=2 has $t>3$, so it is an outlier. By investigating leverage values, x= 2,4,6 are high leverage points. By investigating cooks' distance, x=2, 4, 6 are candidates for influential points, but since only x=2 has cooks' distance bigger than 0.5, only x=2 is an influential point. We remove x=2 first to see if it can improve our model. From summary table, our $adjusted-R^2$ increased by almost 0.16, which is great! Now we remove x=4 and x=6 to see if we can further improve our model. We can see from the summary table that $adjusted-R^2$ decreased by 0.1 and SSE didn't change much, so we decide that y6 ~ x2 + x4 + x6 is our final model with x=2 data point removed. 
+
+# Conclusion
+
+In this project, we investigate the possible relationships with multiple responses and variables in the stock market. After implanting the multiple linear regression model, we finalize our linear regression model as y6~x2 + x4 + x6. As described in the data description section, y6, x2, x4, and x6 represent Relative Win Rate, the weight of the Large ROE (rate on equity) concept, the weight of the Large Return Rate in the last quarter concept, and the weight of the Small systematic Risk concept respectively. 
+
+It turns out that the relative win rate in the financial market has a strong linear relationship with the Large ROE concept, large return rate last quarter, and systematic risk concept. Furthermore, the ROE is positively sloped, and the return rate last quarter and systematic risk are negatively sloped. This means that if a company’s ROE is large, after controlling the other predictors, the chance of winning this trade will increase. Since ROE explains how effectively management is using a company’s assets to create profits, a large ROE should indicate a greater win rate as what we found in the linear model. 
+
+The return rate and risk are negatively sloped, which shows financially that if the stock portfolio last quarter return rate is small or the systematic risk is relatively high, then the chance of winning this trade will decrease. As we mentioned above, the rate of return implies the net gain or loss of an investment (the investment only appears as loss for a negative rate of return value, since all rate of returns in our data set is non-negative, we assume a net gain in all circumstances). It makes sense to say that as the return rate gets lower, our win rate would decrease as well, with all other predictors being controlled. For the last predictor of systematic risk, a negative slope indicates a decrease in the chance of winning as risk get greater. This also makes sense because there is a tradeoff between risk and return in the stock market, and also it is unlikely that a stock portfolio keeps winning the trade all the time. 
+Therefore, this project has reflected some of the properties in the stock market, and confirmed that there is a significant positive linear relationship between the stock relative win rate and the ROE; as well as a negative linear relationship between the win rate and large return rate, and small systematic risk with all other predictors being controlled, respectively. And this conclusion is obeying our common sense in the stock market as we analyzed above.
+ 
+# Citation 
+
+Liu, Y. C., & Yeh, I. C. Using mixture design and neural networks to build stock selection decision support systems. Neural Computing and Applications, 1-15. (Print ISSN 0941-0643, Online ISSN 1433-3058, First online: 16 November 2015, DOI 10.1007/s00521-015-2090-x)
+
+
+# Appendix 
+
+## 1. Data Preparation 
+```{r message = FALSE, warning = FALSE, error = FALSE, out.width = '70%'}
+library(readxl)
+stock_portfolio_performance_data_set <- read_excel("stock portfolio performance data set.xlsx", skip = 1 ,sheet = "all period")
+attach(stock_portfolio_performance_data_set)
+x1 <- stock_portfolio_performance_data_set$`Large B/P`
+x2 <- stock_portfolio_performance_data_set$`Large ROE`
+x3 <- stock_portfolio_performance_data_set$`Large S/P`
+x4 <- stock_portfolio_performance_data_set$`Large Return Rate in the last quarter`
+x5 <- stock_portfolio_performance_data_set$`Large Market Value`
+x6 <- stock_portfolio_performance_data_set$`Small systematic Risk`
+y1 <- stock_portfolio_performance_data_set$`Annual Return...14`
+y2 <- stock_portfolio_performance_data_set$`Excess Return...15`
+y3 <- stock_portfolio_performance_data_set$`Systematic Risk...16`
+y4 <- stock_portfolio_performance_data_set$`Total Risk...17`
+y5 <- stock_portfolio_performance_data_set$`Abs. Win Rate...18`
+y6 <- stock_portfolio_performance_data_set$`Rel. Win Rate...19`
+
+```
+## 2. Data Exploration 
+```{r message = FALSE, warning = FALSE, error = FALSE, out.width = '70%'}
+# investigate the annual returns versus other predictors
+library(car)
+
+full_1 <- lm(y1 ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(full_1)
+full_2 <- lm(y2 ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(full_2)
+full_3 <- lm(y3 ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(full_3)
+full_4 <- lm(y4 ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(full_4)
+full_5 <- lm(y5 ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(full_5)
+full_6 <- lm(y6 ~ x1 + x2 + x3 + x4 + x5 + x6)
+summary(full_6)
+# after comparing these 6 models, full_6 is a good place to start, so we start by 
+# looking its diagnostic plots
+plot(full_6, which = c(1,2)) # it looks a little bit right skewed in qq plot
+                             # its residual fitted plots looks like a funnelling parttern
+                             # and looks like non-constant variance
+scatterplotMatrix(~y6 + x1 + x2 + x3 + x4 + x5 + x6)
+avPlots(full_6)
+```
+
+
+## 3. Regression Analysis Code
+```{r message = FALSE, warning = FALSE, error = FALSE, out.width = '70%'}
+# do the test of non constant 
+ncvTest(full_6)
+# fail to reject, so it is constant 
+
+# do the test of noramlity
+shapiro.test(full_6$residuals)
+# also fail to reject, so it is normal 
+
+# use step function to see if there is any recommonded reduced model
+step(full_6, trace = 0)
+# keep full model
+
+
+# Investigating more with reduced model, 
+# let us see if anything can be improved by implenting the function regsubsets 
+# can say a lot in this section
+library(leaps)
+mod.reg <- regsubsets(cbind(x1, x2, x3, x4, x5, x6), y6)
+sum.reg <- summary(mod.reg)
+print(sum.reg$which)
+print(sum.reg$rsq)  # choose the one increase the most, so choose #3, which are 
+                    # y6 ~ x2 + x4 + x6 
+print(sum.reg$rss)  # SSE, choose the smallest, choose #6, the full model
+print(sum.reg$adjr2)  # adjusted r^2, choose the biggest, choose #6, the full model
+print(sum.reg$cp)   # mallow's cp, choose the smallest, choose #3, which are 
+                    # y6 ~ x2 + x4 + x6
+print(sum.reg$bic)  # BIC, choose the smallest BIC, choose #3, which are 
+                    # y6 ~ x2 + x4 + x6
+#####(conclusion:)
+##### 3 votesf for y~ x2+x4+x6, and 2 votes for the full model, so we may choose 
+##### y ~ x2 + x4 +x6
+
+# let us do anova table to verify this 
+red.mod <- lm(y6 ~ x2 + x4 + x6)
+anova(red.mod,full_6)
+# fail to reject, so the reduced model is a better model for us.
+summary(red.mod) # check this out! A nice linear model
+
+
+##interactive terms
+# since our model size is small, it is probably a good time to consider some 
+# interactive terms 
+int.mod <- lm(y6 ~ x2*x4 + x2*x6 + x4*x6)
+summary(int.mod)
+# interpretation: R^2 imporves only a liitle, but you add 3 more terms 
+
+# doing anova again, which one is better 
+anova(red.mod, int.mod)
+# we compared this two models and find out that y6~x2+x4+x6 is better 
+
+
+## outlier detection 
+# reasons: the reason of doing this is because we have a relatively small R^2, 
+# remove some outliers may be a good choice
+# first of all, see the influence plot 
+
+influenceIndexPlot(red.mod, id = TRUE)
+# in this plot, we can see that x=2 is definitely a influential point, there are 
+# 3 suspect high laverage points, which are x= 2, 4, 6
+# 1 outlier wihch is x = 2. 
+# let us verify this using the rule of thumb
+
+# outliers
+rst <- abs(rstudent(red.mod))
+which(rst > 2) ; which(rst > 3)
+# the result is 2 by using rule of thumb greater than 3 
+
+# high leverage 
+hat <- hatvalues(red.mod)
+which(hat > 3*(3+1)/length(y6)); which(hat > 2*(3+1)/length(y6))
+# the result is 2,4,6 by using rule of thumb greater than 3
+
+# influential points(cooks'distance) 
+cd <- cooks.distance(red.mod)
+which(cd > 4/(length(y6) - 3 - 1))
+# the result is x = 2, 4, 6
+
+# However, x = 4 and x = 6, their cook's distance is not big, so we will remove
+# x=2 first and see how it goes. 
+stock_sub <- stock_portfolio_performance_data_set[-2,]
+
+x2.new <- stock_sub$`Large ROE`
+x4.new <- stock_sub$`Large Return Rate in the last quarter`
+x6.new <- stock_sub$`Small systematic Risk`
+y6.new <- stock_sub$`Rel. Win Rate...19`
+removed.red.mod <- lm(y6.new ~x2.new + x4.new + x6.new, data = stock_sub)
+summary(removed.red.mod)
+## R squared improved and SSE decreases !!!!!!!!!
+
+# let us investigate x = 4 and x = 6 to see how it went 
+stock_sub1 <- stock_sub[c(-4, -6),]
+x2.new1 <- stock_sub1$`Large ROE`
+x4.new1 <- stock_sub1$`Large Return Rate in the last quarter`
+x6.new1 <- stock_sub1$`Small systematic Risk`
+y6.new1 <- stock_sub1$`Rel. Win Rate...19`
+
+removed.fur.red.mod <- lm(y6.new1 ~ x2.new1 + x4.new1 + x6.new1)
+summary(removed.fur.red.mod)
+## R squared decrease, and SSE does not change much
+
+##### final model
+# Thus, our final model will be y6 ~ x2 + x4 + x6, with x = 2 removed.
+
+```
+
